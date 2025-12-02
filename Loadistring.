@@ -1,0 +1,123 @@
+-- // GUI estilo W Azure (mantida, apenas limpa) // --
+
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+local RunService = game:GetService("RunService")
+
+-- CONFIGURAÇÃO
+local config = {
+    ESP_Enabled = false,
+}
+
+-- FUNÇÃO ESP
+local function ApplyESP(player)
+    if not config.ESP_Enabled then
+        if player.Character and player.Character:FindFirstChild("RunixESP") then
+            player.Character.RunixESP:Destroy()
+        end
+        return
+    end
+
+    if player == LocalPlayer then return end
+    if player.Team == LocalPlayer.Team then return end  -- Team Check automático
+
+    local char = player.Character
+    if not char then return end
+
+    local hrp = char:FindFirstChild("HumanoidRootPart")
+    if not hrp then return end
+
+    if not char:FindFirstChild("RunixESP") then
+        local h = Instance.new("Highlight")
+        h.Name = "RunixESP"
+        h.FillColor = Color3.fromRGB(100, 170, 255)
+        h.OutlineColor = Color3.fromRGB(255, 255, 255)
+        h.FillTransparency = 0.7
+        h.OutlineTransparency = 0
+        h.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+        h.Parent = char
+    end
+end
+
+-- Atualiza todos os jogadores
+local function UpdateAllPlayers()
+    for _, player in ipairs(Players:GetPlayers()) do
+        ApplyESP(player)
+    end
+end
+
+Players.PlayerAdded:Connect(function(plr)
+    plr.CharacterAdded:Connect(function()
+        wait(0.5)
+        ApplyESP(plr)
+    end)
+end)
+
+RunService.Heartbeat:Connect(UpdateAllPlayers)
+
+-- ================================
+-- GUI (igual a anterior, só com ESP)
+-- ================================
+
+local ScreenGui = Instance.new("ScreenGui", game.CoreGui)
+ScreenGui.Name = "Runix_UI"
+
+local MainFrame = Instance.new("Frame", ScreenGui)
+MainFrame.Size = UDim2.new(0, 420, 0, 340)
+MainFrame.Position = UDim2.new(0.5, -210, 0.5, -170)
+MainFrame.BackgroundColor3 = Color3.fromRGB(17, 17, 17)
+MainFrame.BorderSizePixel = 0
+
+local UIStroke = Instance.new("UIStroke", MainFrame)
+UIStroke.Thickness = 2
+UIStroke.Color = Color3.fromRGB(80, 80, 255)
+UIStroke.Transparency = 0.2
+
+local UICorner = Instance.new("UICorner", MainFrame)
+UICorner.CornerRadius = UDim.new(0, 10)
+
+local TopBar = Instance.new("Frame", MainFrame)
+TopBar.Size = UDim2.new(1, 0, 0, 45)
+TopBar.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+Instance.new("UICorner", TopBar).CornerRadius = UDim.new(0, 10)
+
+local Title = Instance.new("TextLabel", TopBar)
+Title.Text = "RUNIX ESP"
+Title.Size = UDim2.new(1, -20, 1, 0)
+Title.Position = UDim2.new(0, 15, 0, 0)
+Title.BackgroundTransparency = 1
+Title.TextColor3 = Color3.fromRGB(180, 180, 255)
+Title.Font = Enum.Font.GothamBold
+Title.TextSize = 20
+Title.TextXAlignment = Enum.TextXAlignment.Left
+
+-- ABA ÚNICA (ESP)
+local TabFrame = Instance.new("Frame", MainFrame)
+TabFrame.Size = UDim2.new(1, 0, 1, -45)
+TabFrame.Position = UDim2.new(0, 0, 0, 45)
+TabFrame.BackgroundTransparency = 1
+
+local ESP_Toggle = Instance.new("TextButton", TabFrame)
+ESP_Toggle.Size = UDim2.new(0, 180, 0, 40)
+ESP_Toggle.Position = UDim2.new(0, 20, 0, 20)
+ESP_Toggle.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+ESP_Toggle.TextColor3 = Color3.fromRGB(255, 255, 255)
+ESP_Toggle.Font = Enum.Font.GothamBold
+ESP_Toggle.TextSize = 18
+ESP_Toggle.Text = "👁️  ESP: OFF"
+Instance.new("UICorner", ESP_Toggle).CornerRadius = UDim.new(0, 8)
+
+local function ToggleColor(on)
+    if on then
+        ESP_Toggle.BackgroundColor3 = Color3.fromRGB(60, 120, 255)
+    else
+        ESP_Toggle.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+    end
+end
+
+ESP_Toggle.MouseButton1Click:Connect(function()
+    config.ESP_Enabled = not config.ESP_Enabled
+    ESP_Toggle.Text = config.ESP_Enabled and "👁️  ESP: ON" or "👁️  ESP: OFF"
+    ToggleColor(config.ESP_Enabled)
+end)
+
